@@ -17,25 +17,12 @@ end
 
 using CairoMakie
 
-θ₁ = zeros(N);
-θ₂ = zeros(N);
-θ₃ = zeros(N);
-θ₄ = zeros(N);
-θ₅ = zeros(N);
-θ₆ = zeros(N);
-
-IG_chain!(θ₁, 30.0, 30.0)
-IG_chain!(θ₂, 30.0, 30.0)
-IG_chain!(θ₃, 30.0, 30.0)
-IG_chain!(θ₄, 30.0, 30.0)
-IG_chain!(θ₅, 30.0, 30.0)
-IG_chain!(θ₆, 30.0, 30.0)
+θ = zeros(N);
 
 f = Figure();
 ax = Axis(f[1, 1], title="Inverse-Gamma chain", yscale=log10)
-lines!(ax, 1:N, θ₁)
-lines!(ax, 1:N, θ₂)
-lines!(ax, 1:N, θ₃)
-lines!(ax, 1:N, θ₄)
-lines!(ax, 1:N, θ₅)
-lines!(ax, 1:N, θ₆)
+
+for _ in 1:6
+  IG_chain!(θ, 30.0, 30.0)
+  lines!(ax, 1:N, θ)
+end

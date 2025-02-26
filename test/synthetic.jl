@@ -10,12 +10,12 @@ K(x) = (1 + sign(x)) / 2
 s(u, p, t) = 10 + 3.655606 * sum(@. h_j * K(t - t_j))
 s(t) = s(0,0,t)
 
-dt = 1 // 1000
+dt = 1//1000
 tspan = (0.0, 1.0)
 
 prob = SDEProblem(b, s, 0, tspan)
 
-sol = solve(prob, EM(), dt=dt; trajectories=1_000)
+sol = solve(prob, EM(), dt=dt)
 
 using CairoMakie
 
