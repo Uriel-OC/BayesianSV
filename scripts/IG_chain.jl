@@ -1,6 +1,6 @@
 #---- Setup ----
 using Random
-Random.seed!(5)
+Random.seed!(6)
 
 using Distributions: InverseGamma
 using DataFrames: DataFrame
