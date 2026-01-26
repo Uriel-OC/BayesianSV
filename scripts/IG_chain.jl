@@ -32,13 +32,13 @@ end
 function (@main)(args)
   θ = zeros(N)
   df = DataFrame(n=1:N)
-  α_arr = [20, 30, 40]
+  α_arr = Float64[20, 30, 40]
 
   path = joinpath("data", "IG.csv") |> abspath
 
-  for (α, β) in zip(α_arr, reverse(α_arr))
+  @simd for (α, β) in zip(α_arr, reverse(α_arr))
     for i in 1:5
-      sample_IG_chain!(θ, float(α), float(β))
+      sample_IG_chain!(θ, α, β)
       df[!, "$α-$β-$i"] .= θ
     end
   end
