@@ -1,6 +1,5 @@
 #---- Setup ----
-using Random
-Random.seed!(3)
+using Random; Random.seed!(3)
 
 using Distributions: Normal
 using DataFrames: DataFrame
@@ -24,7 +23,7 @@ function (@main)(args)
   @. S = exp((r - σ^2 / 2) * t + σ * W)
 
   path = joinpath("data", "brownian.csv") |> abspath
-  df = DataFrame([t W S], ["t", "W", "S"])
+  df = DataFrame(t=t, W=W, S=S)
   write(path, df)
 
   return 0
