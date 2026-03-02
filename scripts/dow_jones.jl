@@ -1,5 +1,7 @@
 #---- Setup ----
-using Random: seed!; seed!(4)
+using Random: seed!; seed!(14);
+
+using Distributions: InverseGamma
 
 using BNP
 
@@ -9,21 +11,18 @@ using Dates: Date, Week
 using DataFrames: DataFrame
 using CSV: write
 
-#---- Variables ----
-const N = 26 # Blocks number
+#---- Constants ----
 const burn = 1_000 # Burn-in iterations
 const k = 200_000 # Gibbs sampler iterations
 
 # Model hyperparameters
 const α₁ = 0.1
-const α = α_ζ = 4.0
+const hiper = ARWMInfo(InverseGamma(0.3, 0.3), 100) # α ~ IG(0.3,0.3); σ₀=100
 
 #---- Aux funtions ----
-function get_returns(x::AbstractVector{T})::Vector{T} where {T<:AbstractFloat}
-  vec1 = @view x[1:end-1]
-  vec2 = @view x[2:end]
-
-  return @. (vec2 - vec1) / vec1
+function get_log_returns(x::AbstractVector{T})::Vector{T} where {T<:AbstractFloat}
+  c = first(x)
+  return @. log(x / c)
 end
 
 #---- Main ----
@@ -34,39 +33,71 @@ function (@main)(args)
 
   # Missing variables
   n = length(prices)
-  m = fld(n, N) # Partition size
-  r = n - N * m # Remainder
   T = n / 52 # Weeks -> Years
 
-  # Get returns
-  returns = get_returns(prices)
-  returns = [0; returns]
+  # Get logreturns
+  returns = get_log_returns(prices)
+
+  # Compute difference
+  diff_lrt = diff(returns)
+  pushfirst!(diff_lrt, 0)
+
+  # Period of DWJ data
+  period = Date(1971, 7, 2):Week(1):Date(1974, 8, 2)
+
+  # Index data
+  out_path = joinpath("data", "DWJ_data.csv") |> abspath
+  data_df = DataFrame(
+    :date => period,
+    :price => prices,
+    :logreturn => returns
+  )
+  write(out_path, data_df)
+
+  #---- Using N=13 ----
+  p1 = create_bparams(burn, k, T, n, 13)
 
   # Gibbs sampler
-  gibbs = zeros(burn + k, N)
-
-  sample!(gibbs, returns; burn, k, T, n, N, m, r, α₁, α, α_ζ)
+  gibbs = zeros(p1.N, burn + k)
+  group_and_sample!(gibbs, diff_lrt; α₁=α₁, params=p1, ainfo=hiper)
 
   # Getting samples
-  θ = zeros(k, N)
-  θ .= gibbs[(burn+1):end, :]
-  ξ_bounds = sqrt.(mapslices(x -> quantile(x, [0.025, 0.975]), θ; dims=1))
+  θ = zeros(k, p1.N)
+  permutedims!(θ, gibbs[:, (burn+1):end], (2, 1))
 
-  t = LinRange(0, T, n)
-  marks = map(x -> x * T / n, 0:m:n)
+  ξ_bounds = mapslices(x -> quantile(x, [0.05, 0.95]), θ; dims=1) .|> sqrt
 
-  lower = map(t -> estimate(t, ξ_bounds[1, :], marks), t)
-  upper = map(t -> estimate(t, ξ_bounds[2, :], marks), t)
+  # Volatility
+  vol_df = DataFrame(ξ_bounds', ["lower", "upper"])
+  vol_df[!, :t] .= [period[p1.m*i] for i in 1:p1.N]
+  push!(vol_df, (ξ_bounds[:, end]..., last(period)))
 
-  dates = Date(1971, 7, 2):Week(1):Date(1974, 8, 2)
+  vol_path = joinpath("data", "DWJ_estimate.csv") |> abspath
+  write(vol_path, vol_df)
 
-  path = joinpath("data", "DWJ_vol.csv") |> abspath
-  df = DataFrame(date=dates)
-  df[!, "price"] .= prices
-  df[!, "return"] .= returns
-  df[!, "lower"] .= lower
-  df[!, "upper"] .= upper
-  write(path, df)
+  #---- Using N=26 ----
+  p2 = create_bparams(burn, k, T, n, 26)
+
+  # Gibbs sampler
+  gibbs = zeros(p2.N, burn + k)
+  group_and_sample!(gibbs, diff_lrt; α₁=α₁, params=p2, ainfo=hiper)
+
+  # Getting samples
+  θ = zeros(k, p2.N)
+  permutedims!(θ, gibbs[:, (burn+1):end], (2, 1))
+
+  ξ_bounds = mapslices(x -> quantile(x, [0.05, 0.95]), θ; dims=1) .|> sqrt
+
+  # Period of DWJ data
+  period = Date(1971, 7, 2):Week(1):Date(1974, 8, 2)
+
+  # Volatility
+  vol_df = DataFrame(ξ_bounds', ["lower", "upper"])
+  vol_df[!, :t] .= [period[p2.m*i] for i in 1:p2.N]
+  push!(vol_df, (ξ_bounds[:, end]..., last(period)))
+
+  vol_path_double = joinpath("data", "DWJ_estimate_double.csv") |> abspath
+  write(vol_path_double, vol_df)
 
   return 0
 end
