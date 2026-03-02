@@ -1,6 +1,5 @@
 #---- Setup ----
-using Random
-Random.seed!(6)
+using Random: seed!; seed!(6)
 
 using Distributions: InverseGamma
 using DataFrames: DataFrame
@@ -36,7 +35,7 @@ function (@main)(args)
 
   path = joinpath("data", "IG.csv") |> abspath
 
-  @simd for (α, β) in zip(α_arr, reverse(α_arr))
+  for (α, β) in zip(α_arr, reverse(α_arr))
     for i in 1:5
       sample_IG_chain!(θ, α, β)
       df[!, "$α-$β-$i"] .= θ
