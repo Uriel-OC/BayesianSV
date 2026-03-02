@@ -3,21 +3,13 @@ uuid = "a8e1a1d8-01f5-44ef-949a-baba79cbbe8a"
 version = "0.0.1"
 authors = ["Uriel-OC <62571469+Uriel-OC@users.noreply.github.com>"]
 
+[workspace]
+projects = ["scripts"]
+
 [deps]
-CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
-DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
-Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
-Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
-StochasticDiffEq = "789caeaf-c7a9-5a7d-9973-96adeb23e2a0"
+SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 
 [compat]
-CSV = "0.10.15"
-DataFrames = "1.8.0"
 Distributions = "0.25.122"
-Random = "1.11.0"
-Statistics = "1.11.1"
-StochasticDiffEq = "6.82.0"
-
-[extras]
-BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
+SpecialFunctions = "2.7.1"
