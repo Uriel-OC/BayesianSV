@@ -1,2 +1,5 @@
 **/Manifest*
-data/*.csv
+data/*
+!/data/DJA.csv
+!/data/SPX.csv
+!/data/DWJ.txt
