@@ -1,4 +1,4 @@
-module BNP
+module BayesianSV
 
 export ARWMInfo, create_params, create_bparams, group_and_sample!, sample!
 

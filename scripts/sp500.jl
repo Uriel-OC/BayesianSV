@@ -3,7 +3,7 @@ using Random: seed!; seed!(18)
 
 using Distributions: InverseGamma
 
-using BNP
+using BayesianSV
 
 using Statistics: quantile
 

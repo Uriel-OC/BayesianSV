@@ -4,7 +4,7 @@ using Random: seed!; seed!(6)
 using Distributions: InverseGamma
 
 using StochasticDiffEq
-using BNP
+using BayesianSV
 
 using Statistics: quantile
 

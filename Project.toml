@@ -1,4 +1,4 @@
-name = "BNP"
+name = "BayesianSV"
 uuid = "a8e1a1d8-01f5-44ef-949a-baba79cbbe8a"
 version = "0.0.1"
 authors = ["Uriel-OC <62571469+Uriel-OC@users.noreply.github.com>"]
