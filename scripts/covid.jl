@@ -30,7 +30,7 @@ end
 #---- Main ----
 function (@main)(args)
   # Data
-  file = joinpath("data", "DJA.csv") |> abspath
+  file = joinpath(DATA_PATH, "DJA.csv")
   in_df = CSV.read(file, DataFrame)
 
   # Create returns DataFrame
@@ -47,7 +47,7 @@ function (@main)(args)
   returns_df[!, :diff] .= diff_lrt
 
   # Save returns_df
-  returns_path = joinpath("data", "DJA_returns.csv") |> abspath
+  returns_path = joinpath(DATA_PATH, "DJA_returns.csv")
   CSV.write(returns_path, returns_df)
 
   # Missing variables
@@ -83,7 +83,7 @@ function (@main)(args)
   qt_out_df[!, :date] .= Date(2019):Month(3):Date(2023, 12)
   push!(qt_out_df, (ξ_bounds[:, end]..., last(in_df.date)))
 
-  qt_vol_path = joinpath("data", "DJA_qt_vol.csv") |> abspath
+  qt_vol_path = joinpath(DATA_PATH, "DJA_qt_vol.csv")
   CSV.write(qt_vol_path, qt_out_df)
 
   #---- Using monthly log-returns
@@ -115,7 +115,7 @@ function (@main)(args)
   month_out_df[!, :date] .= Date(2019):Month(1):Date(2023, 12)
   push!(month_out_df, (ξ_bounds[:, end]..., last(in_df.date)))
 
-  month_vol_path = joinpath("data", "DJA_month_vol.csv") |> abspath
+  month_vol_path = joinpath(DATA_PATH, "DJA_month_vol.csv")
   CSV.write(month_vol_path, month_out_df)
 
   return 0

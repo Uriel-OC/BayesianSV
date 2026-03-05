@@ -1,6 +1,9 @@
 module BayesianSV
 
-export ARWMInfo, create_params, create_bparams, group_and_sample!, sample!
+export ARWMInfo, DATA_PATH, create_params, create_bparams, group_and_sample!, sample!
+
+const PROJECT_PATH = Base.current_project() |> dirname
+const DATA_PATH = joinpath(PROJECT_PATH, "data")
 
 using Distributions
 

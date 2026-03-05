@@ -22,7 +22,7 @@ function (@main)(args)
   S = similar(W)
   @. S = exp((r - σ^2 / 2) * t + σ * W)
 
-  path = joinpath("data", "brownian.csv") |> abspath
+  path = joinpath(DATA_PATH, "brownian.csv")
   df = DataFrame(t=t, W=W, S=S)
   write(path, df)
 

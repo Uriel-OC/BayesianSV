@@ -61,7 +61,7 @@ function (@main)(args)
   sol = solve(prob, EM(), dt=dt)
 
   # Writing sample path
-  path_path = joinpath("data", "synthetic_path.csv") |> abspath
+  path_path = joinpath(DATA_PATH, "synthetic_path.csv")
   path_df = DataFrame(sol)
   path_df[!, :s] .= s.(sol.t)
   write(path_path, path_df)
@@ -82,7 +82,7 @@ function (@main)(args)
   t = LinRange(0, p1.T, p1.N + 1) |> collect
   pop!(t)
 
-  vol_path = joinpath("data", "synthetic_vol.csv") |> abspath
+  vol_path = joinpath(DATA_PATH, "synthetic_vol.csv")
   vol_df = DataFrame(ξ_bounds', ["lower", "upper"])
   vol_df[!, :t] .= t
   push!(vol_df, (ξ_bounds[:, end]..., 1.0))
@@ -105,7 +105,7 @@ function (@main)(args)
   t = LinRange(0, p2.T, p2.N + 1) |> collect
   pop!(t)
 
-  vol_path = joinpath("data", "synthetic_vol_double.csv") |> abspath
+  vol_path = joinpath(DATA_PATH, "synthetic_vol_double.csv")
   vol_df = DataFrame(ξ_bounds', ["lower", "upper"])
   vol_df[!, :t] .= t
   push!(vol_df, (ξ_bounds[:, end]..., 1.0))
@@ -128,7 +128,7 @@ function (@main)(args)
   t = LinRange(0, p3.T, p3.N + 1) |> collect
   pop!(t)
 
-  vol_path = joinpath("data", "synthetic_vol_half.csv") |> abspath
+  vol_path = joinpath(DATA_PATH, "synthetic_vol_half.csv")
   vol_df = DataFrame(ξ_bounds', ["lower", "upper"])
   vol_df[!, :t] .= t
   push!(vol_df, (ξ_bounds[:, end]..., 1.0))

@@ -28,7 +28,7 @@ end
 #---- Main ----
 function (@main)(args)
   # Data
-  data_path = joinpath("data", "DWJ.txt") |> abspath
+  data_path = joinpath(DATA_PATH, "DWJ.txt")
   prices = parse.(Float64, readlines(data_path))
 
   # Missing variables
@@ -46,7 +46,7 @@ function (@main)(args)
   period = Date(1971, 7, 2):Week(1):Date(1974, 8, 2)
 
   # Index data
-  out_path = joinpath("data", "DWJ_data.csv") |> abspath
+  out_path = joinpath(DATA_PATH, "DWJ_data.csv")
   data_df = DataFrame(
     :date => period,
     :price => prices,
@@ -72,7 +72,7 @@ function (@main)(args)
   vol_df[!, :t] .= [period[p1.m*i] for i in 1:p1.N]
   push!(vol_df, (ξ_bounds[:, end]..., last(period)))
 
-  vol_path = joinpath("data", "DWJ_estimate.csv") |> abspath
+  vol_path = joinpath(DATA_PATH, "DWJ_estimate.csv")
   write(vol_path, vol_df)
 
   #---- Using N=26 ----
@@ -96,7 +96,7 @@ function (@main)(args)
   vol_df[!, :t] .= [period[p2.m*i] for i in 1:p2.N]
   push!(vol_df, (ξ_bounds[:, end]..., last(period)))
 
-  vol_path_double = joinpath("data", "DWJ_estimate_double.csv") |> abspath
+  vol_path_double = joinpath(DATA_PATH, "DWJ_estimate_double.csv")
   write(vol_path_double, vol_df)
 
   return 0

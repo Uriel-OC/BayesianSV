@@ -33,7 +33,7 @@ function (@main)(args)
   df = DataFrame(n=1:N)
   α_arr = Float64[20, 30, 40]
 
-  path = joinpath("data", "IG.csv") |> abspath
+  path = joinpath(DATA_PATH, "IG.csv")
 
   for (α, β) in zip(α_arr, reverse(α_arr))
     for i in 1:5
