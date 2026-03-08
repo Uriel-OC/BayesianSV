@@ -76,7 +76,7 @@ function (@main)(args)
   permutedims!(θ, gibbs[:, (burn+1):end], (2, 1))
 
   # Getting ξ lower and upper bounds
-  ξ_bounds = mapslices(x -> quantile(x, [0.05, 0.95]), θ; dims=1) .|> sqrt
+  ξ_bounds = mapslices(x -> quantile(x, [0.025, 0.975]), θ; dims=1) .|> sqrt
 
   # Writing estimation DataFrame
   qt_out_df = DataFrame(ξ_bounds', ["lower", "upper"])
@@ -108,7 +108,7 @@ function (@main)(args)
   permutedims!(θ, gibbs[:, (burn+1):end], (2, 1))
 
   # Getting ξ lower and upper bounds
-  ξ_bounds = mapslices(x -> quantile(x, [0.05, 0.95]), θ; dims=1) .|> sqrt
+  ξ_bounds = mapslices(x -> quantile(x, [0.025, 0.975]), θ; dims=1) .|> sqrt
 
   # Writing estimation DataFrame
   month_out_df = DataFrame(ξ_bounds', ["lower", "upper"])

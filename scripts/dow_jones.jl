@@ -65,7 +65,7 @@ function (@main)(args)
   θ = zeros(k, p1.N)
   permutedims!(θ, gibbs[:, (burn+1):end], (2, 1))
 
-  ξ_bounds = mapslices(x -> quantile(x, [0.05, 0.95]), θ; dims=1) .|> sqrt
+  ξ_bounds = mapslices(x -> quantile(x, [0.025, 0.975]), θ; dims=1) .|> sqrt
 
   # Volatility
   vol_df = DataFrame(ξ_bounds', ["lower", "upper"])
@@ -86,7 +86,7 @@ function (@main)(args)
   θ = zeros(k, p2.N)
   permutedims!(θ, gibbs[:, (burn+1):end], (2, 1))
 
-  ξ_bounds = mapslices(x -> quantile(x, [0.05, 0.95]), θ; dims=1) .|> sqrt
+  ξ_bounds = mapslices(x -> quantile(x, [0.025, 0.975]), θ; dims=1) .|> sqrt
 
   # Period of DWJ data
   period = Date(1971, 7, 2):Week(1):Date(1974, 8, 2)
