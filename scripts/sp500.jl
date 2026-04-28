@@ -5,6 +5,8 @@ using Distributions: InverseGamma
 
 using BayesianSV
 
+using MCMCChains
+
 using Statistics: quantile
 
 using CSV
@@ -12,8 +14,9 @@ using DataFrames, DataFramesMeta
 using Dates
 
 #---- Constants ----
+const nc = 4 # Number of chains
 const burn = 1_000 # Burn-in iterations
-const k = 200_000 # Gibbs sampler iterations
+const k = 50_000 # Gibbs sampler iterations
 
 const T = 4.0 # The scripts uses data of 4 years
 
@@ -67,21 +70,32 @@ function (@main)(args)
   Z = group_df.z
   m = group_df.m
 
-  # Gibbs sampler
+  # Initialise chain
+  θ = Chains(zeros(p1.k, p1.N, nc), map(Symbol, 1:p1.N))
+  # Initialise Gibbs
   gibbs = zeros(p1.N, burn + k)
-  sample!(gibbs, Z, m; α₁=α₁, params=p1, ainfo=hiper)
+  for i in 1:nc
+    # Gibbs sampler
+    sample!(gibbs, Z, m; α₁=α₁, params=p1, ainfo=hiper)
+    # Getting samples
+    θ[:, :, i] = permutedims(gibbs[:, (p1.burn+1):end])
+  end
 
-  # Getting samples
-  θ = zeros(k, p1.N)
-  permutedims!(θ, gibbs[:, (burn+1):end], (2, 1))
+  # Compute convergence test and save results
+  conv_t = ess_rhat(θ; kind=:tail, tail_prob=0.05)
+  CSV.write(joinpath(DATA_PATH, "SPX_qt_conv.csv"), conv_t)
 
-  # Getting ξ lower and upper bounds
-  ξ_bounds = mapslices(x -> quantile(x, [0.025, 0.975]), θ; dims=1) .|> sqrt
+  # Get lower and upper bounds
+  θ_bounds = quantile(θ; q=[0.025, 0.975])
+
+  ξ_bounds = zeros(p1.N, 2)
+  @. ξ_bounds[:, 1] = sqrt(θ_bounds.nt[2])
+  @. ξ_bounds[:, 2] = sqrt(θ_bounds.nt[3])
 
   # Writing estimation DataFrame
-  qt_out_df = DataFrame(ξ_bounds', ["lower", "upper"])
+  qt_out_df = DataFrame(ξ_bounds, ["lower", "upper"])
   qt_out_df[!, :date] .= Date(2007):Month(3):Date(2010, 12)
-  push!(qt_out_df, (ξ_bounds[:, end]..., last(in_df.date)))
+  push!(qt_out_df, (ξ_bounds[end, :]..., last(in_df.date)))
 
   qt_vol_path = joinpath(DATA_PATH, "SPX_qt_vol.csv")
   CSV.write(qt_vol_path, qt_out_df)
@@ -99,21 +113,32 @@ function (@main)(args)
   Z = group_df.z
   m = group_df.m
 
-  # Gibbs sampler
+  # Initialise chain
+  θ = Chains(zeros(p2.k, p2.N, nc), map(Symbol, 1:p2.N))
+  # Initialise Gibbs
   gibbs = zeros(p2.N, burn + k)
-  sample!(gibbs, Z, m; α₁=α₁, params=p2, ainfo=hiper)
+  for i in 1:nc
+    # Gibbs sampler
+    sample!(gibbs, Z, m; α₁=α₁, params=p2, ainfo=hiper)
+    # Getting samples
+    θ[:, :, i] = permutedims(gibbs[:, (p2.burn+1):end])
+  end
 
-  # Getting samples
-  θ = zeros(k, p2.N)
-  permutedims!(θ, gibbs[:, (burn+1):end], (2, 1))
+  # Compute convergence test and save results
+  conv_t = ess_rhat(θ; kind=:tail, tail_prob=0.05)
+  CSV.write(joinpath(DATA_PATH, "SPX_month_conv.csv"), conv_t)
 
-  # Getting ξ lower and upper bounds
-  ξ_bounds = mapslices(x -> quantile(x, [0.025, 0.975]), θ; dims=1) .|> sqrt
+  # Get lower and upper bounds
+  θ_bounds = quantile(θ; q=[0.025, 0.975])
+
+  ξ_bounds = zeros(p2.N, 2)
+  @. ξ_bounds[:, 1] = sqrt(θ_bounds.nt[2])
+  @. ξ_bounds[:, 2] = sqrt(θ_bounds.nt[3])
 
   # Writing estimation DataFrame
-  month_out_df = DataFrame(ξ_bounds', ["lower", "upper"])
+  month_out_df = DataFrame(ξ_bounds, ["lower", "upper"])
   month_out_df[!, :date] .= Date(2007):Month(1):Date(2010, 12)
-  push!(month_out_df, (ξ_bounds[:, end]..., last(in_df.date)))
+  push!(month_out_df, (ξ_bounds[end, :]..., last(in_df.date)))
 
   month_vol_path = joinpath(DATA_PATH, "SPX_month_vol.csv")
   CSV.write(month_vol_path, month_out_df)
